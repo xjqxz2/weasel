@@ -79,7 +79,8 @@ func (p *WSSession) ReaderServ() {
 				log.Printf("已回复 %s 的心跳检测包 \n", p.serialNo)
 			default:
 				log.Printf("接收到 %s 的信息，内容为 %s\n", p.serialNo, string(message))
-				p.MsgReader <- message
+				//	暂时不将收到的消息放入管道中 对该部分还未进行实现，因为暂时还用不到此处的代码
+				//p.MsgReader <- message
 			}
 		}
 
