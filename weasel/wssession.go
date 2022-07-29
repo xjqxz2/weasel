@@ -8,7 +8,7 @@ import (
 
 //	The Websocket Client struct
 //	Impl a Client interface
-type WSClient struct {
+type WSSession struct {
 	NetworkClient
 
 	//	a websocket connection
@@ -17,10 +17,10 @@ type WSClient struct {
 	cancel context.CancelFunc
 }
 
-func NewWSClient(conn *websocket.Conn, serialNo, serialName string) *WSClient {
+func NewWSSession(conn *websocket.Conn, serialNo, serialName string) *WSSession {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	return &WSClient{
+	return &WSSession{
 		NetworkClient: NewNetworkClient(serialNo, serialName),
 		conn:          conn,
 		ctx:           ctx,
@@ -28,15 +28,15 @@ func NewWSClient(conn *websocket.Conn, serialNo, serialName string) *WSClient {
 	}
 }
 
-func (p *WSClient) Write(b []byte) {
+func (p *WSSession) Write(b []byte) {
 	p.MsgWriter <- b
 }
 
-func (p *WSClient) Receive() <-chan []byte {
+func (p *WSSession) Receive() <-chan []byte {
 	return p.MsgReader
 }
 
-func (p *WSClient) WriterServ() {
+func (p *WSSession) WriterServ() {
 	go func() {
 		select {
 		case <-p.ctx.Done():
@@ -56,7 +56,7 @@ func (p *WSClient) WriterServ() {
 	}()
 }
 
-func (p *WSClient) ReaderServ() {
+func (p *WSSession) ReaderServ() {
 	for {
 		select {
 		case <-p.ctx.Done():
@@ -84,7 +84,7 @@ func (p *WSClient) ReaderServ() {
 	}
 }
 
-func (p *WSClient) Close() {
+func (p *WSSession) Close() {
 	if p.conn != nil {
 		p.cancel()
 		_ = p.conn.Close()

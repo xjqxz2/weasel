@@ -1,11 +1,11 @@
 package weasel
 
-type BroadcastTarget []Client
+type BroadcastTarget []Session
 
 func (p BroadcastTarget) Broadcast(message []byte) {
 	for _, client := range p {
-		go func(client Client) {
-			client.Write(message)
+		go func(s Session) {
+			s.Write(message)
 		}(client)
 	}
 }
