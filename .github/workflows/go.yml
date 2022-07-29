@@ -1,0 +1,34 @@
+name: Go
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+
+    - name: Building Linux
+      run: make linux
+      
+    - name: Building Windows
+      run: make windows
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with: # 将下述可执行文件 release 上去
+        files: |
+          bin/linux_x64-86
+          bin/windows_x64-86.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
