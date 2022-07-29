@@ -74,9 +74,11 @@ func (p *WSSession) ReaderServ() {
 
 			//	判定消息类型，做出对应的处理
 			switch messageType {
+			case websocket.PingMessage:
+				_ = p.conn.WriteMessage(websocket.PongMessage, nil)
+				log.Printf("已回复 %s 的心跳检测包 \n", p.serialNo)
 			default:
 				log.Printf("接收到 %s 的信息，内容为 %s\n", p.serialNo, string(message))
-
 				p.MsgReader <- message
 			}
 		}
