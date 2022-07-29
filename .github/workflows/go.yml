@@ -19,7 +19,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with: # 将下述可执行文件 release 上去
           files: |
-            bin/linux_x64_86
+            bin/linux_x64-86
             bin/windows_x64-86.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
