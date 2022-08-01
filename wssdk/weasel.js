@@ -63,7 +63,7 @@ const WSClient = function (serialNo, serverDomain, onReceiver) {
     //  设置健康检查相关函数
     this.health = setInterval(function () {
         that.websocket.send(PACK_PING_HEALTH)
-    }, 30000)
+    }, 15000)
 
 
     connectionWS()
