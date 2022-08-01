@@ -72,6 +72,11 @@ func (p *WSSession) ReaderServ() {
 				continue
 			}
 
+			if string(message) == PACK_PING_HEALTH {
+				_ = p.conn.WriteMessage(websocket.TextMessage, []byte(PACK_PONG_HEALTH))
+				continue
+			}
+
 			//	判定消息类型，做出对应的处理
 			switch messageType {
 			case websocket.PingMessage:
@@ -79,8 +84,6 @@ func (p *WSSession) ReaderServ() {
 				log.Printf("已回复 %s 的心跳检测包 \n", p.serialNo)
 			default:
 				log.Printf("接收到 %s 的信息，内容为 %s\n", p.serialNo, string(message))
-				//	暂时不将收到的消息放入管道中 对该部分还未进行实现，因为暂时还用不到此处的代码
-				//p.MsgReader <- message
 			}
 		}
 

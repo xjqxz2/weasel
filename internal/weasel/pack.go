@@ -1,0 +1,6 @@
+package weasel
+
+const (
+	PACK_PING_HEALTH = "PING/HEALTH"
+	PACK_PONG_HEALTH = "PONG/HEALTH"
+)

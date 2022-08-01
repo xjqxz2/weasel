@@ -7,10 +7,11 @@ import (
 )
 
 type WebService struct {
-	ip     string
-	port   int
-	engine *gin.Engine
-	hub    *weasel.Hub
+	ip        string
+	port      int
+	debugMode bool
+	engine    *gin.Engine
+	hub       *weasel.Hub
 }
 
 func New(ip string, port int) *WebService {
@@ -21,6 +22,10 @@ func New(ip string, port int) *WebService {
 		hub:    weasel.NewHub(),
 	}
 
+	//	加载跨域中间件
+	service.engine.Use(cors())
+
+	//	加载路由
 	service.loadRoutes()
 
 	return service

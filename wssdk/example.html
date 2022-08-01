@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="weasel.js"></script>
+</head>
+<body>
+<script>
+    const serialNo = "wind"
+    const wss = new WSClient(serialNo, "localhost:8080", function (e) {
+        console.log(e)
+    })
+
+    setTimeout(function () {
+        wss.send([], "Hello world")
+    }, 1000)
+</script>
+</body>
+</html>
