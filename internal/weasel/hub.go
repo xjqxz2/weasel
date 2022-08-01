@@ -1,6 +1,7 @@
 package weasel
 
 import (
+	"log"
 	"sync"
 )
 
@@ -73,4 +74,12 @@ func (p *Hub) Start(session Session) {
 	//	开始消息循环
 	session.WriterServ()
 	session.ReaderServ()
+
+	//	如果是收到断开的消息，则删除当前客户端
+	if <-session.Dead() {
+		p.rmu.Lock()
+		defer p.rmu.Unlock()
+		delete(p.sessions, session.SerialNo())
+		log.Printf("检测到客户端 %s 离线，已清除服务器中的Session信息\n", session.SerialNo())
+	}
 }

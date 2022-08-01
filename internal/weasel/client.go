@@ -15,6 +15,7 @@ type Serv interface {
 	SerialNo() string
 	WriterServ()
 	ReaderServ()
+	Dead() <-chan bool
 }
 
 type networkClient struct {
