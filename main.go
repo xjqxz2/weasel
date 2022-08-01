@@ -1,7 +1,12 @@
 package main
 
-import "peon.top/weasel/service"
+import (
+	"log"
+	"peon.top/weasel/service"
+)
 
 func main() {
-	service.New("", 8080).Listen()
+	if err := service.New("", 8080).Listen(); err != nil {
+		log.Fatalf(err.Error())
+	}
 }
