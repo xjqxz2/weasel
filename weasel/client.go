@@ -1,6 +1,6 @@
 package weasel
 
-type Client interface {
+type Session interface {
 	ReceiveWriter
 	Serv
 	Close()

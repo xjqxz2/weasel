@@ -5,18 +5,18 @@ import (
 )
 
 type Hub struct {
-	rmu     sync.RWMutex
-	clients map[string]Client
+	rmu      sync.RWMutex
+	sessions map[string]Session
 }
 
 func NewHub() *Hub {
 	return &Hub{
-		clients: make(map[string]Client),
+		sessions: make(map[string]Session),
 	}
 }
 
 //	将客户端（连接）注册至 Hub 中
-func (p *Hub) Register(serialNo string, client Client) error {
+func (p *Hub) Register(serialNo string, session Session) error {
 	if client := p.Find(serialNo); client != nil {
 		if err := p.UnRegister(client); err != nil {
 			return err
@@ -26,27 +26,27 @@ func (p *Hub) Register(serialNo string, client Client) error {
 	p.rmu.Lock()
 	defer p.rmu.Unlock()
 
-	p.clients[serialNo] = client
+	p.sessions[serialNo] = session
 
 	return nil
 }
 
-func (p *Hub) UnRegister(client Client) error {
+func (p *Hub) UnRegister(client Session) error {
 	p.rmu.Lock()
 	defer p.rmu.Unlock()
 
 	//	Close Old Connection
 	client.Close()
-	delete(p.clients, client.SerialNo())
+	delete(p.sessions, client.SerialNo())
 
 	return nil
 }
 
-func (p *Hub) Find(serialNo string) Client {
+func (p *Hub) Find(serialNo string) Session {
 	p.rmu.RLock()
 	defer p.rmu.RUnlock()
 
-	return p.clients[serialNo]
+	return p.sessions[serialNo]
 }
 
 func (p *Hub) Search(serialsNo ...string) BroadcastTarget {
@@ -54,23 +54,23 @@ func (p *Hub) Search(serialsNo ...string) BroadcastTarget {
 
 	//	当未指定广播设备序列时，则使用完全广播模式
 	if len(serialsNo) <= 0 {
-		for _, client := range p.clients {
-			result = append(result, client)
+		for _, session := range p.sessions {
+			result = append(result, session)
 		}
 	}
 
 	//	当指定广播设备序列时，则使用局部广播模式
 	for _, serialNo := range serialsNo {
-		if client, ok := p.clients[serialNo]; ok {
-			result = append(result, client)
+		if session, ok := p.sessions[serialNo]; ok {
+			result = append(result, session)
 		}
 	}
 
 	return result
 }
 
-func (p *Hub) Start(client Client) {
+func (p *Hub) Start(session Session) {
 	//	开始消息循环
-	client.WriterServ()
-	client.ReaderServ()
+	session.WriterServ()
+	session.ReaderServ()
 }

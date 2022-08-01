@@ -8,7 +8,7 @@ import (
 
 //	The Websocket Client struct
 //	Impl a Client interface
-type WSClient struct {
+type WSSession struct {
 	NetworkClient
 
 	//	a websocket connection
@@ -17,10 +17,10 @@ type WSClient struct {
 	cancel context.CancelFunc
 }
 
-func NewWSClient(conn *websocket.Conn, serialNo, serialName string) *WSClient {
+func NewWSSession(conn *websocket.Conn, serialNo, serialName string) *WSSession {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	return &WSClient{
+	return &WSSession{
 		NetworkClient: NewNetworkClient(serialNo, serialName),
 		conn:          conn,
 		ctx:           ctx,
@@ -28,15 +28,15 @@ func NewWSClient(conn *websocket.Conn, serialNo, serialName string) *WSClient {
 	}
 }
 
-func (p *WSClient) Write(b []byte) {
+func (p *WSSession) Write(b []byte) {
 	p.MsgWriter <- b
 }
 
-func (p *WSClient) Receive() <-chan []byte {
+func (p *WSSession) Receive() <-chan []byte {
 	return p.MsgReader
 }
 
-func (p *WSClient) WriterServ() {
+func (p *WSSession) WriterServ() {
 	go func() {
 		select {
 		case <-p.ctx.Done():
@@ -56,7 +56,7 @@ func (p *WSClient) WriterServ() {
 	}()
 }
 
-func (p *WSClient) ReaderServ() {
+func (p *WSSession) ReaderServ() {
 	for {
 		select {
 		case <-p.ctx.Done():
@@ -74,17 +74,20 @@ func (p *WSClient) ReaderServ() {
 
 			//	判定消息类型，做出对应的处理
 			switch messageType {
+			case websocket.PingMessage:
+				_ = p.conn.WriteMessage(websocket.PongMessage, nil)
+				log.Printf("已回复 %s 的心跳检测包 \n", p.serialNo)
 			default:
 				log.Printf("接收到 %s 的信息，内容为 %s\n", p.serialNo, string(message))
-
-				p.MsgReader <- message
+				//	暂时不将收到的消息放入管道中 对该部分还未进行实现，因为暂时还用不到此处的代码
+				//p.MsgReader <- message
 			}
 		}
 
 	}
 }
 
-func (p *WSClient) Close() {
+func (p *WSSession) Close() {
 	if p.conn != nil {
 		p.cancel()
 		_ = p.conn.Close()
