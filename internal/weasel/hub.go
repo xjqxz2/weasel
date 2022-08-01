@@ -75,6 +75,8 @@ func (p *Hub) Start(session Session) {
 	session.WriterServ()
 	session.ReaderServ()
 
+	log.Printf("开始监听客户端 %s 状态\n", session.SerialNo())
+
 	//	如果是收到断开的消息，则删除当前客户端
 	if <-session.Dead() {
 		p.rmu.Lock()
