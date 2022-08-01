@@ -19,9 +19,11 @@ func (p *WebService) broadcast(c *gin.Context) {
 		return
 	}
 
-	for _, session := range p.hub.Search(request.SerialNo...) {
-		session.Write(request.Message)
-	}
+	//for _, session := range p.hub.Search(request.SerialNo...) {
+	//	session.Write(request.Message)
+	//}
+
+	p.hub.Search(request.SerialNo...).Broadcast(request.Message)
 
 	c.JSON(http.StatusOK, gin.H{"err_no": 0, "msg": "Queued"})
 }
