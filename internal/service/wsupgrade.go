@@ -5,7 +5,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
-	"peon.top/weasel/weasel"
+	"peon.top/weasel/internal/weasel"
 )
 
 var upgrader = websocket.Upgrader{

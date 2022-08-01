@@ -3,7 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"peon.top/weasel/weasel"
+	"peon.top/weasel/internal/weasel"
 )
 
 type WebService struct {

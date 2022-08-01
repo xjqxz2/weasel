@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"log"
-	"peon.top/weasel/service"
+	"peon.top/weasel/internal/service"
 )
 
 var (
