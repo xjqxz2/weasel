@@ -54,16 +54,17 @@ func (p *Hub) Search(serialsNo ...string) BroadcastTarget {
 	var result BroadcastTarget
 
 	//	当未指定广播设备序列时，则使用完全广播模式
-	if len(serialsNo) <= 0 {
+	switch {
+	case len(serialsNo) <= 0:
 		for _, session := range p.sessions {
 			result = append(result, session)
 		}
-	}
-
-	//	当指定广播设备序列时，则使用局部广播模式
-	for _, serialNo := range serialsNo {
-		if session, ok := p.sessions[serialNo]; ok {
-			result = append(result, session)
+	default:
+		//	当指定广播设备序列时，则使用局部广播模式
+		for _, serialNo := range serialsNo {
+			if session, ok := p.sessions[serialNo]; ok {
+				result = append(result, session)
+			}
 		}
 	}
 
