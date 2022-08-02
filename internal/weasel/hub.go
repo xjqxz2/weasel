@@ -7,27 +7,23 @@ import (
 
 type Hub struct {
 	rmu      sync.RWMutex
-	sessions map[string]Session
+	sessions map[string][]Session
 }
 
 func NewHub() *Hub {
 	return &Hub{
-		sessions: make(map[string]Session),
+		sessions: make(map[string][]Session),
 	}
 }
 
 //	将客户端（连接）注册至 Hub 中
 func (p *Hub) Register(serialNo string, session Session) error {
-	if client := p.Find(serialNo); client != nil {
-		if err := p.UnRegister(client); err != nil {
-			return err
-		}
-	}
-
 	p.rmu.Lock()
 	defer p.rmu.Unlock()
 
-	p.sessions[serialNo] = session
+	sessions := p.sessions[serialNo]
+	sessions = append(sessions, session)
+	p.sessions[serialNo] = sessions
 
 	return nil
 }
@@ -43,7 +39,7 @@ func (p *Hub) UnRegister(client Session) error {
 	return nil
 }
 
-func (p *Hub) Find(serialNo string) Session {
+func (p *Hub) Find(serialNo string) []Session {
 	p.rmu.RLock()
 	defer p.rmu.RUnlock()
 
@@ -53,17 +49,17 @@ func (p *Hub) Find(serialNo string) Session {
 func (p *Hub) Search(serialsNo ...string) BroadcastTarget {
 	var result BroadcastTarget
 
-	//	当未指定广播设备序列时，则使用完全广播模式
 	switch {
 	case len(serialsNo) <= 0:
+		//	当未指定广播设备序列时，则使用完全广播模式
 		for _, session := range p.sessions {
-			result = append(result, session)
+			result = append(result, session...)
 		}
 	default:
 		//	当指定广播设备序列时，则使用局部广播模式
 		for _, serialNo := range serialsNo {
 			if session, ok := p.sessions[serialNo]; ok {
-				result = append(result, session)
+				result = append(result, session...)
 			}
 		}
 	}
@@ -82,7 +78,32 @@ func (p *Hub) Start(session Session) {
 	if <-session.Dead() {
 		p.rmu.Lock()
 		defer p.rmu.Unlock()
-		delete(p.sessions, session.SerialNo())
-		log.Printf("检测到客户端 %s 离线，已清除服务器中的Session信息\n", session.SerialNo())
+
+		//	获取设备下的所有 Session 对象
+		if sessions, ok := p.sessions[session.SerialNo()]; ok {
+
+			//	若该 SerialNo 下的 Session 数量 > 0 则找到当前这个，将其释放掉
+			if len(sessions) > 0 {
+				sessions = p.cleanSession(sessions, session.SessionId())
+				p.sessions[session.SerialNo()] = sessions
+			}
+
+			if len(sessions) <= 0 {
+				delete(p.sessions, session.SerialNo())
+				log.Printf("客户端 %s 已没有可用的设备释放内存空间\n", session.SerialNo())
+			}
+
+			log.Printf("检测到客户端 %s 离线，已清除服务器中的Session信息\n", session.SerialNo())
+		}
 	}
+}
+
+func (p *Hub) cleanSession(sessions []Session, sessionId string) (result []Session) {
+	for _, session := range sessions {
+		if session.SessionId() != sessionId {
+			result = append(result, session)
+		}
+	}
+
+	return result
 }

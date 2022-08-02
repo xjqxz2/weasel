@@ -1,5 +1,7 @@
 package weasel
 
+import gonanoid "github.com/matoous/go-nanoid"
+
 type Session interface {
 	ReceiveWriter
 	Serv
@@ -16,6 +18,7 @@ type Serv interface {
 	WriterServ()
 	ReaderServ()
 	Dead() <-chan bool
+	SessionId() string
 }
 
 type networkClient struct {
@@ -24,6 +27,7 @@ type networkClient struct {
 
 	serialNo   string
 	serialName string
+	sessionId  string
 }
 
 //	an alias to point networkClient
@@ -35,9 +39,14 @@ func NewNetworkClient(serialNo, serialName string) NetworkClient {
 		MsgReader:  make(chan []byte),
 		serialNo:   serialNo,
 		serialName: serialName,
+		sessionId:  gonanoid.MustID(32),
 	}
 }
 
 func (p *networkClient) SerialNo() string {
 	return p.serialNo
+}
+
+func (p *networkClient) SessionId() string {
+	return p.sessionId
 }
