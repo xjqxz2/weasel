@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gorilla/websocket"
 	"log"
+	"time"
 )
 
 //	The Websocket Client struct
@@ -16,6 +17,8 @@ type WSSession struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 	dead   chan bool
+
+	heartTimer *time.Ticker
 }
 
 func NewWSSession(conn *websocket.Conn, serialNo, serialName string) *WSSession {
@@ -27,6 +30,7 @@ func NewWSSession(conn *websocket.Conn, serialNo, serialName string) *WSSession 
 		ctx:           ctx,
 		cancel:        cancel,
 		dead:          make(chan bool),
+		heartTimer:    time.NewTicker(15 * time.Second),
 	}
 }
 
@@ -52,9 +56,6 @@ func (p *WSSession) WriterServ() {
 					p.Close()
 					continue
 				}
-
-				//	记录最后一次发送的消息
-				p.lastSendMessage = writer
 			}
 		}
 	}()
@@ -67,6 +68,9 @@ func (p *WSSession) ReaderServ() {
 			case <-p.ctx.Done():
 				log.Printf("客户端 %s 接收到停止信号，释放 ReaderServ\n", p.serialNo)
 				return
+			case <-p.heartTimer.C:
+				_ = p.conn.WriteMessage(websocket.PongMessage, nil)
+				log.Printf("主动下发心跳信息 %s \n", p.serialNo)
 			default:
 				messageType, message, err := p.conn.ReadMessage()
 
