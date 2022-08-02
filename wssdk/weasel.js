@@ -44,34 +44,35 @@ WSClient.prototype.setRetryStatus = function (b) {
 }
 
 WSClient.prototype.connectionWS = function (prototype) {
+    let that = this
     prototype = prototype || "ws://"
 
     this.websocket = new WebSocket(
-        prototype + that.serverDomain + "/dev/conn?serial_no=" + that.serialNo + "&serial_name=UnKnowDevice"
+        prototype + this.serverDomain + "/dev/conn?serial_no=" + this.serialNo + "&serial_name=UnKnowDevice"
     )
 
     //  Open the websocket
     this.websocket.onopen = function () {
-        console.log("设备 " + this.serialNo + "已成功连接到服务器")
+        console.log("设备 " + that.serialNo + "已成功连接到服务器")
 
-        if (this.connectRetry != null) {
-            clearInterval(this.connectRetry)
-            this.connectRetry = null
+        if (that.connectRetry != null) {
+            clearInterval(that.connectRetry)
+            that.connectRetry = null
             console.log("已关闭重连定时器")
         }
     }
 
     this.websocket.onclose = function () {
-        console.log("设备 " + this.serialNo + "已断开连接")
+        console.log("设备 " + that.serialNo + "已断开连接")
 
         //  断开连接时清除心跳监测
         clearInterval(that.health)
 
 
-        if (this.connectRetry == null && this.isRetry) {
+        if (that.connectRetry == null && that.isRetry) {
             //  开启重连模式
-            this.connectRetry = setInterval(function () {
-                this.connectionWS()
+            that.connectRetry = setInterval(function () {
+                that.connectionWS()
             }, 1500)
 
             console.log("已开启重连模式...")
@@ -84,7 +85,7 @@ WSClient.prototype.connectionWS = function (prototype) {
             return
         }
 
-        this.onReceiver(e)
+        that.onReceiver(e)
     }
 
     this.websocket.onerror = function (e) {
