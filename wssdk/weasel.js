@@ -92,3 +92,15 @@ WSClient.prototype.send = function (serialNo, message) {
 WSClient.prototype.setRetryStatus = function (b) {
     this.isRetry = b
 }
+
+WSClient.prototype.close = function () {
+    //  close retry connection
+    this.setRetryStatus(false)
+
+    clearInterval(this.health)
+
+    if (this.connectRetry != null)
+        clearInterval(this.connectRetry)
+
+    this.websocket.close()
+}
