@@ -16,7 +16,7 @@ const WSClient = function (serialNo, serverDomain, onReceiver) {
         that.websocket.send(PACK_PING_HEALTH)
     }, 15000)
 
-    this.connectionWS()
+    this.connect()
 }
 
 WSClient.prototype.send = function (serialNo, message) {
@@ -43,7 +43,7 @@ WSClient.prototype.setRetryStatus = function (b) {
     this.isRetry = b
 }
 
-WSClient.prototype.connectionWS = function (prototype) {
+WSClient.prototype.connect = function (prototype) {
     let that = this
     prototype = prototype || "ws://"
 
@@ -72,7 +72,7 @@ WSClient.prototype.connectionWS = function (prototype) {
         if (that.connectRetry == null && that.isRetry) {
             //  开启重连模式
             that.connectRetry = setInterval(function () {
-                that.connectionWS()
+                that.connect()
             }, 1500)
 
             console.log("已开启重连模式...")
