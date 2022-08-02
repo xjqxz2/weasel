@@ -52,6 +52,9 @@ func (p *WSSession) WriterServ() {
 					p.Close()
 					continue
 				}
+
+				//	记录最后一次发送的消息
+				p.lastSendMessage = writer
 			}
 		}
 	}()

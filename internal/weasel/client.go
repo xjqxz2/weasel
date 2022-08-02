@@ -11,6 +11,7 @@ type Session interface {
 type ReceiveWriter interface {
 	Write(b []byte)
 	Receive() <-chan []byte
+	GetLastSendMessage() []byte
 }
 
 type Serv interface {
@@ -25,9 +26,10 @@ type networkClient struct {
 	MsgWriter chan []byte
 	MsgReader chan []byte
 
-	serialNo   string
-	serialName string
-	sessionId  string
+	serialNo        string
+	serialName      string
+	sessionId       string
+	lastSendMessage []byte
 }
 
 //	an alias to point networkClient
@@ -49,4 +51,8 @@ func (p *networkClient) SerialNo() string {
 
 func (p *networkClient) SessionId() string {
 	return p.sessionId
+}
+
+func (p *networkClient) GetLastSendMessage() []byte {
+	return p.lastSendMessage
 }
