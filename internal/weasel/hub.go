@@ -72,11 +72,6 @@ func (p *Hub) Start(session Session) {
 	session.WriterServ()
 	session.ReaderServ()
 
-	//	发送最后一次收到的消息
-	if msg := session.GetLastSendMessage(); len(msg) > 0 {
-		session.Write(msg)
-	}
-
 	log.Printf("开始监听客户端 %s 状态\n", session.SerialNo())
 
 	//	如果是收到断开的消息，则删除当前客户端
