@@ -2,19 +2,13 @@ const PACK_PING_HEALTH = "PING/HEALTH"
 const PACK_PONG_HEALTH = "PONG/HEALTH"
 
 const WSClient = function (serialNo, serverDomain, onReceiver) {
-    let that = this;
-
     this.serialNo = serialNo
     this.serverDomain = serverDomain
     this.onReceiver = onReceiver || null
     this.websocket = null
     this.connectRetry = null
     this.isRetry = true
-
-    //  设置健康检查相关函数
-    this.health = setInterval(function () {
-        that.websocket.send(PACK_PING_HEALTH)
-    }, 15000)
+    this.health = null
 
     this.connect()
 }
@@ -47,6 +41,8 @@ WSClient.prototype.connect = function (prototype) {
     let that = this
     prototype = prototype || "ws://"
 
+    //  Open the retry status
+    this.setRetryStatus(true)
     this.websocket = new WebSocket(
         prototype + this.serverDomain + "/dev/conn?serial_no=" + this.serialNo + "&serial_name=UnKnowDevice"
     )
@@ -54,6 +50,15 @@ WSClient.prototype.connect = function (prototype) {
     //  Open the websocket
     this.websocket.onopen = function () {
         console.log("设备 " + that.serialNo + "已成功连接到服务器")
+
+        //  Create Heart Pack
+        if (that.health == null) {
+            that.health = setInterval(function () {
+                that.websocket.send(PACK_PING_HEALTH)
+            }, 15000)
+
+            console.log("已启用心跳检测")
+        }
 
         if (that.connectRetry != null) {
             clearInterval(that.connectRetry)
@@ -65,9 +70,8 @@ WSClient.prototype.connect = function (prototype) {
     this.websocket.onclose = function () {
         console.log("设备 " + that.serialNo + "已断开连接")
 
-        //  断开连接时清除心跳监测
-        clearInterval(that.health)
-
+        that.initResource()
+        that.setRetryStatus(true)
 
         if (that.connectRetry == null && that.isRetry) {
             //  开启重连模式
@@ -94,14 +98,24 @@ WSClient.prototype.connect = function (prototype) {
 }
 
 WSClient.prototype.close = function () {
-    //  close retry connection
-    this.setRetryStatus(false)
-
-    clearInterval(this.health)
-
-    if (this.connectRetry != null)
-        clearInterval(this.connectRetry)
+    this.initResource()
 
     this.websocket.close()
     this.websocket = null
+}
+
+WSClient.prototype.initResource = function () {
+    //  close retry connection
+    this.setRetryStatus(false)
+
+    if (this.health != null) {
+        clearInterval(this.health)
+        this.health = null
+        console.log("已停用心跳检测")
+    }
+
+    if (this.connectRetry != null) {
+        clearInterval(this.connectRetry)
+        this.connectRetry = null
+    }
 }

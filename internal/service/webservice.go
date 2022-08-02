@@ -34,6 +34,7 @@ func New(ip string, port int) *WebService {
 func (p *WebService) loadRoutes() {
 	p.engine.GET("/dev/conn", p.upgradeWebsocket)
 	p.engine.POST("/msg/broadcast", p.broadcast)
+	p.engine.Static("/example", "/home/xjqxz/Workplace/weasel/wssdk")
 }
 
 func (p *WebService) Listen() error {
