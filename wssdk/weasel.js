@@ -71,7 +71,7 @@ WSClient.prototype.connect = function (prototype) {
         console.log("设备 " + that.serialNo + "已断开连接")
 
         that.initResource()
-        that.setRetryStatus(true)
+
 
         if (that.connectRetry == null && that.isRetry) {
             //  开启重连模式
