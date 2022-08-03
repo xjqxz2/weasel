@@ -1,7 +1,16 @@
 const PACK_PING_HEALTH = "PING/HEALTH"
 const PACK_PONG_HEALTH = "PONG/HEALTH"
 
-const WSClient = function (serialNo, serverDomain, onReceiver) {
+/**
+ * 初始化 Websocket Weasel Application 客户端
+ *
+ * @param serialNo 唯一设备码
+ * @param serverDomain 服务端通信域名
+ * @param security 是否开启 HTTPS , 使用 HTTP/WS = false ，使用 HTTPS/WSS = true
+ * @param onReceiver 当 Websocket 接收到消息时的回调函数
+ * @constructor
+ */
+const WSClient = function (serialNo, serverDomain, security, onReceiver) {
     this.serialNo = serialNo
     this.serverDomain = serverDomain
     this.onReceiver = onReceiver || null
@@ -9,6 +18,7 @@ const WSClient = function (serialNo, serverDomain, onReceiver) {
     this.connectRetry = null
     this.isRetry = true
     this.health = null
+    this.security = security || false
 
     this.connect()
 }
@@ -19,7 +29,7 @@ WSClient.prototype.send = function (serialNo, message) {
         "message": message
     }
 
-    fetch("http://" + this.serverDomain + "/msg/broadcast", {
+    fetch(this.getProtocolScheme("http") + this.serverDomain + "/msg/broadcast", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -37,14 +47,13 @@ WSClient.prototype.setRetryStatus = function (b) {
     this.isRetry = b
 }
 
-WSClient.prototype.connect = function (prototype) {
+WSClient.prototype.connect = function () {
     let that = this
-    prototype = prototype || "ws://"
 
     //  Open the retry status
     this.setRetryStatus(true)
     this.websocket = new WebSocket(
-        prototype + this.serverDomain + "/dev/conn?serial_no=" + this.serialNo + "&serial_name=UnKnowDevice"
+        this.getProtocolScheme("websocket") + this.serverDomain + "/dev/conn?serial_no=" + this.serialNo + "&serial_name=UnKnowDevice"
     )
 
     //  Open the websocket
@@ -115,5 +124,15 @@ WSClient.prototype.initResource = function () {
     if (this.connectRetry != null) {
         clearInterval(this.connectRetry)
         this.connectRetry = null
+    }
+}
+
+WSClient.prototype.getProtocolScheme = function (protocol) {
+    switch (protocol) {
+        case "websocket":
+            return this.security ? "wss://" : "ws://"
+        case "http":
+        default:
+            return this.security ? "https://" : "http://"
     }
 }
