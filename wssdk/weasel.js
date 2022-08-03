@@ -72,7 +72,6 @@ WSClient.prototype.connect = function (prototype) {
 
         that.initResource()
 
-
         if (that.connectRetry == null && that.isRetry) {
             //  开启重连模式
             that.connectRetry = setInterval(function () {
