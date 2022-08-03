@@ -16,6 +16,14 @@
         wss.send([], "Hello world")
     }, 1000)
 
+    setTimeout(function () {
+        wss.close()
+    }, 5000)
+
+    setTimeout(function () {
+        wss.connect()
+    }, 10000)
+
 </script>
 </body>
 </html>
