@@ -98,6 +98,8 @@ WSClient.prototype.connect = function (prototype) {
 }
 
 WSClient.prototype.close = function () {
+    //  close retry connection
+    this.setRetryStatus(false)
     this.initResource()
 
     this.websocket.close()
@@ -105,9 +107,6 @@ WSClient.prototype.close = function () {
 }
 
 WSClient.prototype.initResource = function () {
-    //  close retry connection
-    this.setRetryStatus(false)
-
     if (this.health != null) {
         clearInterval(this.health)
         this.health = null
