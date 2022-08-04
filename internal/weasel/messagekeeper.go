@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const MAX_KEEP_CAPACITY = 1
+const MAX_KEEP_CAPACITY = 10240
 
 type device struct {
 	deviceId   string
