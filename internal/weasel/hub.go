@@ -8,11 +8,13 @@ import (
 type Hub struct {
 	rmu      sync.RWMutex
 	sessions map[string][]Session
+	keeper   *LRUKeeper
 }
 
 func NewHub() *Hub {
 	return &Hub{
 		sessions: make(map[string][]Session),
+		keeper:   NewLRUKeeper(),
 	}
 }
 
@@ -21,6 +23,7 @@ func (p *Hub) Register(serialNo string, session Session) error {
 	p.rmu.Lock()
 	defer p.rmu.Unlock()
 
+	session.SetKeeper(p.keeper)
 	sessions := p.sessions[serialNo]
 	sessions = append(sessions, session)
 	p.sessions[serialNo] = sessions
@@ -72,6 +75,11 @@ func (p *Hub) Start(session Session) {
 	session.WriterServ()
 	session.ReaderServ()
 
+	//	下发最新的一条消息
+	if message := p.keeper.Message(session.SerialNo()); message != nil {
+		session.Write(message)
+	}
+
 	log.Printf("开始监听客户端 %s 状态\n", session.SerialNo())
 
 	//	如果是收到断开的消息，则删除当前客户端
@@ -89,6 +97,7 @@ func (p *Hub) Start(session Session) {
 			}
 
 			if len(sessions) <= 0 {
+				p.keeper.Offline(session.SerialNo())
 				delete(p.sessions, session.SerialNo())
 				log.Printf("客户端 %s 已没有可用的设备释放内存空间\n", session.SerialNo())
 			}

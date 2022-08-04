@@ -5,6 +5,8 @@ import gonanoid "github.com/matoous/go-nanoid"
 type Session interface {
 	ReceiveWriter
 	Serv
+	SetKeeper(k *LRUKeeper)
+	SessionId() string
 	Close()
 }
 
@@ -18,13 +20,12 @@ type Serv interface {
 	WriterServ()
 	ReaderServ()
 	Dead() <-chan bool
-	SessionId() string
 }
 
 type networkClient struct {
-	MsgWriter chan []byte
-	MsgReader chan []byte
-
+	keeper     *LRUKeeper
+	MsgWriter  chan []byte
+	MsgReader  chan []byte
 	serialNo   string
 	serialName string
 	sessionId  string
@@ -37,9 +38,9 @@ func NewNetworkClient(serialNo, serialName string) NetworkClient {
 	return &networkClient{
 		MsgWriter:  make(chan []byte),
 		MsgReader:  make(chan []byte),
+		sessionId:  gonanoid.MustID(32),
 		serialNo:   serialNo,
 		serialName: serialName,
-		sessionId:  gonanoid.MustID(32),
 	}
 }
 
@@ -49,4 +50,8 @@ func (p *networkClient) SerialNo() string {
 
 func (p *networkClient) SessionId() string {
 	return p.sessionId
+}
+
+func (p *networkClient) SetKeeper(k *LRUKeeper) {
+	p.keeper = k
 }

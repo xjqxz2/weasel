@@ -31,6 +31,10 @@ func NewWSSession(conn *websocket.Conn, serialNo, serialName string) *WSSession 
 }
 
 func (p *WSSession) Write(b []byte) {
+	//	将消息加入消息记录器
+	p.keeper.Push(p.serialNo, b)
+
+	//	将消息写入消息通道
 	p.MsgWriter <- b
 }
 
