@@ -14,3 +14,15 @@ func (p BroadcastTarget) Broadcast(message []byte) {
 		}(client)
 	}
 }
+
+func (p BroadcastTarget) GetSerialsNo() (result []string) {
+	if len(p) <= 0 {
+		return []string{}
+	}
+
+	for _, session := range p {
+		result = append(result, session.SerialNo())
+	}
+
+	return result
+}

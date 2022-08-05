@@ -19,7 +19,10 @@ func (p *WebService) broadcast(c *gin.Context) {
 		return
 	}
 
-	p.hub.Search(request.SerialNo...).Broadcast(request.Message)
+	devices := p.hub.Search(request.SerialNo...)
 
-	c.JSON(http.StatusOK, gin.H{"err_no": 0, "msg": "Queued"})
+	//	广播发送消息
+	devices.Broadcast(request.Message)
+
+	c.JSON(http.StatusOK, gin.H{"err_no": 0, "data": devices.GetSerialsNo(), "msg": "Queued"})
 }
