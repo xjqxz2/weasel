@@ -9,17 +9,19 @@ import (
 type WebService struct {
 	ip        string
 	port      int
+	encDomain string
 	debugMode bool
 	engine    *gin.Engine
 	hub       *weasel.Hub
 }
 
-func New(ip string, port int) *WebService {
+func New(ip string, port int, enc string) *WebService {
 	service := &WebService{
-		engine: gin.Default(),
-		ip:     ip,
-		port:   port,
-		hub:    weasel.NewHub(),
+		engine:    gin.Default(),
+		ip:        ip,
+		port:      port,
+		hub:       weasel.NewHub(enc),
+		encDomain: enc,
 	}
 
 	//	加载跨域中间件

@@ -9,12 +9,14 @@ type Hub struct {
 	rmu      sync.RWMutex
 	sessions map[string][]Session
 	keeper   *LRUKeeper
+	ev       Event
 }
 
-func NewHub() *Hub {
+func NewHub(remoteEventDomain string) *Hub {
 	return &Hub{
 		sessions: make(map[string][]Session),
 		keeper:   NewLRUKeeper(),
+		ev:       &RemoteEvent{Host: remoteEventDomain},
 	}
 }
 
@@ -28,16 +30,19 @@ func (p *Hub) Register(serialNo string, session Session) error {
 	sessions = append(sessions, session)
 	p.sessions[serialNo] = sessions
 
+	//	通知使用事件机制（发送 连接包）
+	p.ev.Fire(&EventPacket{PackType: 1, DeviceId: session.SerialNo()})
+
 	return nil
 }
 
-func (p *Hub) UnRegister(client Session) error {
+func (p *Hub) UnRegister(session Session) error {
 	p.rmu.Lock()
 	defer p.rmu.Unlock()
 
 	//	Close Old Connection
-	client.Close()
-	delete(p.sessions, client.SerialNo())
+	session.Close()
+	delete(p.sessions, session.SerialNo())
 
 	return nil
 }
@@ -102,6 +107,8 @@ func (p *Hub) Start(session Session) {
 				log.Printf("客户端 %s 已没有可用的设备释放内存空间\n", session.SerialNo())
 			}
 
+			//	通知使用事件机制（发送 连接包）
+			p.ev.Fire(&EventPacket{PackType: 2, DeviceId: session.SerialNo()})
 			log.Printf("检测到客户端 %s 离线，已清除服务器中的Session信息\n", session.SerialNo())
 		}
 	}

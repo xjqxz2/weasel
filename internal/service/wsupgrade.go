@@ -28,13 +28,14 @@ func (p *WebService) upgradeWebsocket(c *gin.Context) {
 	//	创建一个客户端
 	session := weasel.NewWSSession(conn, serialNo, serialName)
 
-	//	释放客户端连接资源
-	defer session.Close()
 	log.Printf("客户端 %s 已连接到服务器，已为其开启数据收发服务\n", c.Query("serial_no"))
 
 	if err := p.hub.Register(serialNo, session); err != nil {
 		return
 	}
+
+	//	释放客户端连接资源
+	//defer p.hub.UnRegister(session)
 
 	p.hub.Start(session)
 }

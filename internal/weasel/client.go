@@ -29,6 +29,7 @@ type networkClient struct {
 	serialNo   string
 	serialName string
 	sessionId  string
+	encDomain  string
 }
 
 //	an alias to point networkClient
