@@ -81,9 +81,9 @@ func (p *Hub) Start(session Session) {
 	session.ReaderServ()
 
 	//	下发最新的一条消息
-	if message := p.keeper.Message(session.SerialNo()); message != nil {
-		session.Write(message)
-	}
+	//if message := p.keeper.Message(session.SerialNo()); message != nil {
+	//	session.Write(message)
+	//}
 
 	log.Printf("开始监听客户端 %s 状态\n", session.SerialNo())
 

@@ -10,7 +10,7 @@ const PACK_PONG_HEALTH = "PONG/HEALTH"
  * @param onReceiver 当 Websocket 接收到消息时的回调函数
  * @constructor
  */
-const WSClient = function (serialNo, serverDomain, security, onReceiver) {
+const WSClient = function (serialNo, serverDomain, security, onReceiver, online, offline) {
     this.serialNo = serialNo
     this.serverDomain = serverDomain
     this.onReceiver = onReceiver || null
@@ -19,6 +19,8 @@ const WSClient = function (serialNo, serverDomain, security, onReceiver) {
     this.isRetry = true
     this.health = null
     this.security = security || false
+    this.online = online || null
+    this.offline = offline || null
 
     this.connect()
 }
@@ -74,6 +76,9 @@ WSClient.prototype.connect = function () {
             that.connectRetry = null
             console.log("已关闭重连定时器")
         }
+
+        if (this.online !== null)
+            this.online()
     }
 
     this.websocket.onclose = function () {
@@ -89,6 +94,9 @@ WSClient.prototype.connect = function () {
 
             console.log("已开启重连模式...")
         }
+
+        if (this.offline)
+            this.offline()
     }
 
     this.websocket.onmessage = function (e) {

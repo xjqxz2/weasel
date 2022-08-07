@@ -34,8 +34,5 @@ func (p *WebService) upgradeWebsocket(c *gin.Context) {
 		return
 	}
 
-	//	释放客户端连接资源
-	//defer p.hub.UnRegister(session)
-
 	p.hub.Start(session)
 }

@@ -7,10 +7,20 @@
 </head>
 <body>
 <script>
-    const serialNo = "wind"
-    const wss = new WSClient(serialNo, "localhost:8080", true, function (e) {
+    function receiver(e) {
         console.log(e)
-    })
+    }
+
+    function online() {
+        console.log("Device is online...")
+    }
+
+    function offline() {
+        console.log("Device is offline...")
+    }
+
+    const serialNo = "wind"
+    const wss = new WSClient(serialNo, "localhost:8080", true, receiver, online, offline)
 
     setTimeout(function () {
         wss.send([], "Hello world")
