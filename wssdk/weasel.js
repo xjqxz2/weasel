@@ -18,6 +18,7 @@ const WSClient = function (serialNo, serverDomain, security, onReceiver, online,
     this.onReceiver = onReceiver || null
     this.onOnline = online || null
     this.onOffline = offline || null
+    this.isOnError = false
     this.websocket = null
     this.connectRetry = null
     this.isRetry = true
@@ -96,6 +97,8 @@ WSClient.prototype.connect = function () {
 
         if (that.onOnline !== null)
             that.onOnline()
+
+        that.isOnError = false
     }
 
     this.websocket.onclose = function () {
@@ -112,7 +115,7 @@ WSClient.prototype.connect = function () {
             console.log("已开启重连模式...")
         }
 
-        if (that.onOffline)
+        if (that.onOffline && !that.isOnError)
             that.onOffline()
     }
 
@@ -127,6 +130,7 @@ WSClient.prototype.connect = function () {
 
     this.websocket.onerror = function (e) {
         console.log("Websocket 发生错误 -> " + e)
+        that.isOnError = true
     }
 }
 
