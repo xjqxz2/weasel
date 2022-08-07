@@ -8,19 +8,36 @@ const PACK_PONG_HEALTH = "PONG/HEALTH"
  * @param serverDomain 服务端通信域名
  * @param security 是否开启 HTTPS , 使用 HTTP/WS = false ，使用 HTTPS/WSS = true
  * @param onReceiver 当 Websocket 接收到消息时的回调函数
+ * @param online
+ * @param offline
  * @constructor
  */
 const WSClient = function (serialNo, serverDomain, security, onReceiver, online, offline) {
     this.serialNo = serialNo
     this.serverDomain = serverDomain
     this.onReceiver = onReceiver || null
+    this.onOnline = online || null
+    this.onOffline = offline || null
     this.websocket = null
     this.connectRetry = null
     this.isRetry = true
     this.health = null
     this.security = security || false
-    this.online = online || null
-    this.offline = offline || null
+
+    let that = this
+
+    function updateNetworkState(event) {
+        if (navigator.onLine) {
+            console.log("设备网络状态发生改变 连接状态:已接入互联网")
+            that.connect()
+        } else {
+            console.log("设备网络状态发生改变 连接状态:断开网络")
+            that.close()
+        }
+    }
+
+    window.addEventListener('online', updateNetworkState)
+    window.addEventListener('offline', updateNetworkState)
 
     this.connect()
 }
@@ -77,8 +94,8 @@ WSClient.prototype.connect = function () {
             console.log("已关闭重连定时器")
         }
 
-        if (this.online !== null)
-            this.online()
+        if (that.onOnline !== null)
+            that.onOnline()
     }
 
     this.websocket.onclose = function () {
@@ -95,8 +112,8 @@ WSClient.prototype.connect = function () {
             console.log("已开启重连模式...")
         }
 
-        if (this.offline)
-            this.offline()
+        if (that.onOffline)
+            that.onOffline()
     }
 
     this.websocket.onmessage = function (e) {

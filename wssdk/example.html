@@ -20,15 +20,15 @@
     }
 
     const serialNo = "wind"
-    const wss = new WSClient(serialNo, "localhost:8080", true, receiver, online, offline)
+    const wss = new WSClient(serialNo, "localhost:8080", false, receiver, online, offline)
 
     setTimeout(function () {
         wss.send([], "Hello world")
     }, 1000)
 
-    setTimeout(function () {
-        wss.close()
-    }, 5000)
+    // setTimeout(function () {
+    //     wss.close()
+    // }, 5000)
 
     setTimeout(function () {
         wss.connect()
