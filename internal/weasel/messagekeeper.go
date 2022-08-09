@@ -12,6 +12,10 @@ type Keeper interface {
 // 该记录器不记录消息
 type NoMessageKeeper struct{}
 
+func NewNoMessageKeeper() *NoMessageKeeper {
+	return new(NoMessageKeeper)
+}
+
 func (p *NoMessageKeeper) Push(deviceId string, message []byte) {}
 func (p *NoMessageKeeper) Message(deviceId string) []byte       { return nil }
 func (p *NoMessageKeeper) Offline(deviceId string)              {}

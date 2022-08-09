@@ -8,14 +8,14 @@ import (
 type Hub struct {
 	rmu      sync.RWMutex
 	sessions map[string][]Session
-	keeper   *LRUKeeper
+	keeper   Keeper
 	ev       Event
 }
 
-func NewHub(remoteEvent Event) *Hub {
+func NewHub(messageKeeper Keeper, remoteEvent Event) *Hub {
 	return &Hub{
 		sessions: make(map[string][]Session),
-		keeper:   NewLRUKeeper(),
+		keeper:   messageKeeper,
 		ev:       remoteEvent,
 	}
 }
@@ -81,9 +81,9 @@ func (p *Hub) Start(session Session) {
 	session.ReaderServ()
 
 	//	下发最新的一条消息
-	//if message := p.keeper.Message(session.SerialNo()); message != nil {
-	//	session.Write(message)
-	//}
+	if message := p.keeper.Message(session.SerialNo()); message != nil {
+		session.Write(message)
+	}
 
 	log.Printf("开始监听客户端 %s 状态\n", session.SerialNo())
 
