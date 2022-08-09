@@ -34,8 +34,7 @@ func main() {
 }
 
 func loadExtendComponent() (keeper weasel.Keeper, event weasel.Event) {
-	keeper = weasel.NewNoMessageKeeper()
-	event = weasel.NewNoNotifyEvent()
+	keeper, event = weasel.NewNoMessageKeeper(), weasel.NewNoNotifyEvent()
 
 	if networkEventNotify != "" {
 		event = weasel.NewRemoteEvent(networkEventNotify)
