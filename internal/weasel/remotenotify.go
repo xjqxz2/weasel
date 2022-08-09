@@ -20,6 +20,10 @@ type RemoteEvent struct {
 }
 
 func (p *RemoteEvent) Fire(packet *EventPacket) {
+	if p.Host == "" {
+		return
+	}
+
 	go func() {
 		client := &http.Client{}
 		_, err := client.Get(fmt.Sprintf("%s?id=%s&type=%d", p.Host, packet.DeviceId, packet.PackType))

@@ -15,7 +15,7 @@ var (
 func main() {
 	flag.StringVar(&listenIPAddr, "Host", "0.0.0.0", "The WebService Host,Default is 0.0.0.0")
 	flag.IntVar(&listenPort, "Port", 8080, "The WebService Post,Default is 8080")
-	flag.StringVar(&networkEventNotify, "EventNotifyDomain", "http://localhost:8080", "If device connect, this can notify")
+	flag.StringVar(&networkEventNotify, "EventNotifyDomain", "", "If device connect, this can notify")
 	flag.Parse()
 
 	srv := service.New(listenIPAddr, listenPort, networkEventNotify)
