@@ -12,15 +12,15 @@ type Hub struct {
 	ev       Event
 }
 
-func NewHub(remoteEventDomain string) *Hub {
+func NewHub(remoteEvent Event) *Hub {
 	return &Hub{
 		sessions: make(map[string][]Session),
 		keeper:   NewLRUKeeper(),
-		ev:       &RemoteEvent{Host: remoteEventDomain},
+		ev:       remoteEvent,
 	}
 }
 
-//	将客户端（连接）注册至 Hub 中
+// 将客户端（连接）注册至 Hub 中
 func (p *Hub) Register(serialNo string, session Session) error {
 	p.rmu.Lock()
 	defer p.rmu.Unlock()
