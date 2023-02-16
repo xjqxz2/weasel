@@ -90,6 +90,10 @@ WSClient.prototype.connect = function () {
         }
 
         if (that.connectRetry != null) {
+            console.log("已启用心跳检测")
+        }
+
+        if (that.connectRetry != null) {
             clearInterval(that.connectRetry)
             that.connectRetry = null
             console.log("已关闭重连定时器")
