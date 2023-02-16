@@ -1,5 +1,6 @@
 const PACK_PING_HEALTH = "PING/HEALTH"
 const PACK_PONG_HEALTH = "PONG/HEALTH"
+const PACK_KICK_OFFLINE = "KICK/OFFLINE"
 
 /**
  * 初始化 Websocket Weasel Application 客户端
@@ -122,6 +123,14 @@ WSClient.prototype.connect = function () {
     this.websocket.onmessage = function (e) {
         if (e.data === PACK_PONG_HEALTH) {
             console.log("收到心跳回复 PONG")
+            return
+        }
+
+        if (e.data === PACK_KICK_OFFLINE) {
+            console.log("收到下线包")
+            clearInterval(that.connectRetry)
+            that.connectRetry = null
+            console.log("已关闭重连定时器")
             return
         }
 

@@ -39,6 +39,7 @@ func New(
 func (p *WebService) loadRoutes() {
 	p.engine.GET("/dev/conn", p.upgradeWebsocket)
 	p.engine.POST("/msg/broadcast", p.broadcast)
+	p.engine.POST("/dev/kick", p.kick)
 }
 
 func (p *WebService) Listen() error {
