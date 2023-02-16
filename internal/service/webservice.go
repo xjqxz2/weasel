@@ -12,6 +12,7 @@ type WebService struct {
 	debugMode bool
 	engine    *gin.Engine
 	hub       *weasel.Hub
+	token     string
 }
 
 func New(
@@ -19,12 +20,14 @@ func New(
 	port int,
 	keeper weasel.Keeper,
 	event weasel.Event,
+	token string,
 ) *WebService {
 	service := &WebService{
 		engine: gin.Default(),
 		ip:     ip,
 		port:   port,
 		hub:    weasel.NewHub(keeper, event),
+		token:  token,
 	}
 
 	//	加载跨域中间件

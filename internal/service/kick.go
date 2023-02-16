@@ -25,5 +25,5 @@ func (p *WebService) kick(c *gin.Context) {
 	devices := p.hub.Search(request.SerialNo...)
 	devices.Kick()
 
-	c.JSON(http.StatusOK, gin.H{"err_no": 1, "msg": "请指定一个客户端踢下线"})
+	c.JSON(http.StatusOK, gin.H{"err_no": 0, "msg": "设备已T下线"})
 }

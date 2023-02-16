@@ -12,6 +12,7 @@ var (
 	listenPort         int
 	networkEventNotify string
 	enableKeeper       bool
+	token              string
 )
 
 func main() {
@@ -19,13 +20,14 @@ func main() {
 	flag.IntVar(&listenPort, "Port", 8080, "The WebService Post,Default is 8080")
 	flag.StringVar(&networkEventNotify, "EventNotifyDomain", "", "If device connect, this can notify")
 	flag.BoolVar(&enableKeeper, "EnableKeeper", false, "Is enable message keeper")
+	flag.StringVar(&token, "Token", "", "Is enable token?")
 	flag.Parse()
 
 	//	加载必要的组件
 	event, keeper := loadExtendComponent()
 
 	//	创建服务
-	srv := service.New(listenIPAddr, listenPort, event, keeper)
+	srv := service.New(listenIPAddr, listenPort, event, keeper, token)
 
 	//	监听服务
 	if err := srv.Listen(); err != nil {
