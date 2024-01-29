@@ -34,12 +34,15 @@ func NewRemoteEvent(host string) *RemoteEvent {
 func (p *RemoteEvent) Fire(packet *EventPacket) {
 	go func() {
 		client := &http.Client{}
-		_, err := client.Get(fmt.Sprintf("%s?id=%s&type=%d", p.Host, packet.DeviceId, packet.PackType))
+		resp, err := client.Get(fmt.Sprintf("%s?id=%s&type=%d", p.Host, packet.DeviceId, packet.PackType))
 
 		if err != nil {
 			log.Printf("通知失败:%s\n", err.Error())
 			return
 		}
+
+		//	关闭数据流
+		defer resp.Body.Close()
 
 		log.Printf("消息通知成功:%s -> PacketType(%d)\n", packet.DeviceId, packet.PackType)
 	}()
