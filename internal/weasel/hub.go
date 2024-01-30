@@ -21,7 +21,7 @@ func NewHub(messageKeeper Keeper, remoteEvent Event) *Hub {
 }
 
 // 将客户端（连接）注册至 Hub 中
-func (p *Hub) Register(serialNo string, session Session) error {
+func (p *Hub) Register(serialNo string, session Session, requestInfo *RequestInfo) error {
 	p.rmu.Lock()
 	defer p.rmu.Unlock()
 
@@ -31,7 +31,11 @@ func (p *Hub) Register(serialNo string, session Session) error {
 	p.sessions[serialNo] = sessions
 
 	//	通知使用事件机制（发送 连接包）
-	p.ev.Fire(&EventPacket{PackType: 1, DeviceId: session.SerialNo()})
+	p.ev.Fire(&EventPacket{
+		PackType:    1,
+		DeviceId:    session.SerialNo(),
+		RequestInfo: *requestInfo},
+	)
 
 	return nil
 }

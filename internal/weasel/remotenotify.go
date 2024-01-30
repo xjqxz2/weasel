@@ -19,6 +19,7 @@ func NewNoNotifyEvent() *NoNotifyEvent {
 func (p *NoNotifyEvent) Fire(packet *EventPacket) {}
 
 type EventPacket struct {
+	RequestInfo
 	PackType int
 	DeviceId string
 }

@@ -15,22 +15,24 @@ var upgrader = websocket.Upgrader{
 }
 
 func (p *WebService) upgradeWebsocket(c *gin.Context) {
+	var request weasel.RequestInfo
+
+	if err := request.Bind(c); err != nil {
+		c.JSON(http.StatusOK, gin.H{"err_no": 1, "msg": err.Error()})
+		return
+	}
+
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		return
 	}
 
-	var (
-		serialNo   = c.Query("serial_no")
-		serialName = c.Query("serial_name")
-	)
-
 	//	创建一个客户端
-	session := weasel.NewWSSession(conn, serialNo, serialName)
+	session := weasel.NewWSSession(conn, request.SerialNo, request.SerialName)
 
 	log.Printf("客户端 %s 已连接到服务器，已为其开启数据收发服务\n", c.Query("serial_no"))
 
-	if err := p.hub.Register(serialNo, session); err != nil {
+	if err := p.hub.Register(request.SerialNo, session, &request); err != nil {
 		return
 	}
 
