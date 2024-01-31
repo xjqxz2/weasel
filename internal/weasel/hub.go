@@ -58,8 +58,8 @@ func (p *Hub) Find(serialNo string) []Session {
 	return p.sessions[serialNo]
 }
 
-func (p *Hub) Search(serialsNo ...string) BroadcastTarget {
-	var result BroadcastTarget
+func (p *Hub) Search(serialsNo ...string) Broadcasts {
+	var result Broadcasts
 
 	switch {
 	case len(serialsNo) <= 0:
